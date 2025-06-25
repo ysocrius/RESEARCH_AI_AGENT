@@ -1,7 +1,5 @@
 # Root .gitignore for WEB_AGENT project
 
-# Git-specific
-.gitignore
 
 # Next.js and React specific ignores
 # dependencies
@@ -90,8 +88,6 @@ playwright-report/
 # poetry.lock
 # Pipfile.lock
 
-# Cursor specific
-.cursor/
 
 # Miscellaneous
 *.pem
