@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Test Page - Developer Tools Research Agent</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2563eb;
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #4b5563;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input, button, select {
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+    pre {
+      background: #f9fafb;
+      border-radius: 4px;
+      padding: 15px;
+      overflow: auto;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      max-height: 300px;
+    }
+    .result {
+      margin-top: 20px;
+    }
+    .error {
+      color: #dc2626;
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #dbeafe;
+      color: #1e40af;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    .quick-tests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .quick-test {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .quick-test:hover {
+      background: #e5e7eb;
+    }
+    .status {
+      margin-top: 10px;
+      font-style: italic;
+      color: #6b7280;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #2563eb;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Developer Tools Research Agent - API Test</h1>
+  <p>Use this page to test the search API and verify that it's working correctly.</p>
+
+  <div class="card">
+    <h2>Quick Tests</h2>
+    <div class="quick-tests">
+      <button class="quick-test" data-query="database">Database Tools</button>
+      <button class="quick-test" data-query="mobile">Mobile Development</button>
+      <button class="quick-test" data-query="ai">AI/ML Tools</button>
+      <button class="quick-test" data-query="code editor">Code Editors</button>
+      <button class="quick-test" data-query="cloud">Cloud Platforms</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Search API Test</h2>
+    <div class="input-group">
+      <label for="query">Search Query:</label>
+      <input type="text" id="query" placeholder="Enter search terms (e.g., 'database', 'mobile', 'AI tools')">
+    </div>
+    <button id="searchBtn">Search</button>
+    <div class="status" id="status"></div>
+
+    <div class="result" id="result">
+      <h3>Result:</h3>
+      <pre id="output">No results yet. Click "Search" to test the API.</pre>
+    </div>
+  </div>
+
+  <script>
+    const searchBtn = document.getElementById('searchBtn');
+    const queryInput = document.getElementById('query');
+    const outputEl = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+    const quickTests = document.querySelectorAll('.quick-test');
+
+    // Initialize with a default query
+    queryInput.value = 'database';
+
+    // Set up quick test buttons
+    quickTests.forEach(button => {
+      button.addEventListener('click', () => {
+        queryInput.value = button.dataset.query;
+        searchBtn.click();
+      });
+    });
+
+    // Search API test
+    searchBtn.addEventListener('click', async () => {
+      const query = queryInput.value.trim();
+      
+      if (!query) {
+        outputEl.textContent = 'Error: Please enter a search query';
+        outputEl.classList.add('error');
+        return;
+      }
+
+      try {
+        outputEl.classList.remove('error');
+        searchBtn.disabled = true;
+        statusEl.innerHTML = '<div class="loading"></div> Searching...';
+        
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query }),
+        });
+
+        const statusText = `Status: ${response.status} ${response.statusText}`;
+        
+        if (!response.ok) {
+          statusEl.textContent = `${statusText} - Error`;
+          outputEl.textContent = `API Error: ${response.statusText}\n\nStatus: ${response.status}`;
+          outputEl.classList.add('error');
+          return;
+        }
+
+        const data = await response.json();
+        statusEl.textContent = `${statusText} - Success`;
+        
+        // Pretty print the JSON with 2 spaces
+        outputEl.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        statusEl.textContent = 'Request failed';
+        outputEl.textContent = `Error: ${error.message}`;
+        outputEl.classList.add('error');
+      } finally {
+        searchBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html> 
