@@ -1,5 +1,8 @@
 # Root .gitignore for WEB_AGENT project
 
+# Git-specific
+.gitignore
+
 # Next.js and React specific ignores
 # dependencies
 node_modules/
@@ -10,6 +13,9 @@ node_modules/
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
+# PowerShell scripts
+start-dev-tools.ps1
 
 # testing
 coverage/
